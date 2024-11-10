@@ -32,8 +32,6 @@ set autochdir
 
 set hidden
 
-set spell spelllang=de
-
 "set wildmenu wildmode=list:longest,full
 
 set laststatus=2 statusline=%F
@@ -47,6 +45,8 @@ set foldlevelstart=1
 set termguicolors
 set background=dark
 
+set spell spelllang=de,en
+
 let g:netrw_browse_split = 3
 
 " Plug section start
@@ -56,18 +56,12 @@ call plug#begin()
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
 
 " COQ, for autocomplete
-" main one
 Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
 " 9000+ Snippets
 Plug 'ms-jpq/coq.artifacts', {'branch': 'artifacts'}
 " lua & third party sources -- See https://github.com/ms-jpq/coq.thirdparty
 " Need to **configure separately**
 Plug 'ms-jpq/coq.thirdparty', {'branch': '3p'}
-" - shell repl
-" - nvim lua api
-" - scientific calculator
-" - comment banner
-" - etc
 
 " Ok colorschemes
 Plug 'luisiacc/gruvbox-baby', {'branch': 'main'}
@@ -77,12 +71,16 @@ Plug 'sainnhe/everforest'
 Plug 'morhetz/gruvbox'
 Plug 'sjl/badwolf'
 
+" a bar that displays the current mode
 Plug 'itchyny/lightline.vim'
-Plug 'tpope/vim-commentary'
-Plug 'tpope/vim-surround'
-Plug 'tpope/vim-vinegar'
+" commit message integration in nvim
 Plug 'APZelos/blamer.nvim'
-"Plug 'sheerun/vim-polyglot'
+" LSP server installer
+Plug 'williamboman/mason.nvim'
+" LSP server
+Plug 'neovim/nvim-lspconfig'
+" LSP handshake between Mason and Lspconfig
+Plug 'williamboman/mason-lspconfig.nvim'
 
 " Plug section end
 call plug#end()
@@ -94,6 +92,8 @@ function After_Load()
     TSToggle indent
     " Start COQ
     COQnow --shut-up
+    " Start Blamer
+    BlamerToggle
 endfunction
 
 " Colorscheme
@@ -121,5 +121,24 @@ autocmd FileType tex setlocal filetype=latex
 
 " Start Treesitter after loading
 autocmd VimEnter * ++nested call After_Load()
+lua << EOF
+    require("mason").setup()
+    require("mason-lspconfig").setup()
 
- 
+    require'lspconfig'.clangd.setup{}
+    require'lspconfig'.texlab.setup{}
+    --require'lspconfig'.pylyzer.setup{}
+    require'lspconfig'.pylsp.setup{}
+    require'lspconfig'.pyre.setup{}
+    require'lspconfig'.pyright.setup{}
+    require("lspconfig").ltex.setup({
+        settings = {
+            ltex = {
+                language = "auto"
+            }
+        },
+    })
+EOF
+
+" shortcut to display warnings in current line
+:noremap <F2> :lua vim.diagnostic.open_float()
