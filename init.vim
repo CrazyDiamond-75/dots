@@ -45,9 +45,12 @@ set foldlevelstart=1
 set termguicolors
 set background=dark
 
-set spell spelllang=de,en
+language en_GB.utf8
+setlocal spell spelllang=en_gb
 
 let g:netrw_browse_split = 3
+" if a tex-file is opened, the filetype should always be set to latex
+let g:tex_flavor = "latex"
 
 " Plug section start
 call plug#begin()
@@ -127,8 +130,7 @@ lua << EOF
 
     require'lspconfig'.clangd.setup{}
     require'lspconfig'.texlab.setup{}
-    --require'lspconfig'.pylyzer.setup{}
-    require'lspconfig'.pylsp.setup{}
+    require'lspconfig'.biome.setup{}
     require'lspconfig'.pyre.setup{}
     require'lspconfig'.pyright.setup{}
     require("lspconfig").ltex.setup({
