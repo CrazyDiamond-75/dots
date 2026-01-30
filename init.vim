@@ -45,6 +45,9 @@ set foldlevelstart=1
 set termguicolors
 set background=dark
 
+" fix the clipboard
+set clipboard+=unnamedplus
+
 language en_GB.utf8
 setlocal spell spelllang=en_gb
 
@@ -55,9 +58,6 @@ let g:tex_flavor = "latex"
 " Plug section start
 call plug#begin()
 
-" Treesitter, for better syntax highlighting
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
-
 " COQ, for autocomplete
 Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
 " 9000+ Snippets
@@ -66,81 +66,39 @@ Plug 'ms-jpq/coq.artifacts', {'branch': 'artifacts'}
 " Need to **configure separately**
 Plug 'ms-jpq/coq.thirdparty', {'branch': '3p'}
 
-" Ok colorschemes
-Plug 'luisiacc/gruvbox-baby', {'branch': 'main'}
-Plug 'sainnhe/edge'
+" Colorscheme
 Plug 'sainnhe/gruvbox-material'
-Plug 'sainnhe/everforest'
-Plug 'morhetz/gruvbox'
-Plug 'sjl/badwolf'
 
 " a bar that displays the current mode
 Plug 'itchyny/lightline.vim'
 " commit message integration in nvim
 Plug 'APZelos/blamer.nvim'
-" LSP server installer
-Plug 'williamboman/mason.nvim'
-" LSP server
-Plug 'neovim/nvim-lspconfig'
-" LSP handshake between Mason and Lspconfig
-Plug 'williamboman/mason-lspconfig.nvim'
+
+" live tex rendering
+Plug 'let-def/texpresso.vim'
+
+" Better syntax highlighting
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
 " Plug section end
 call plug#end()
 
+" Colorscheme
+colorscheme gruvbox-material
+
+
 function After_Load()
-    " Start Treesitter
-    TSToggle highlight
-    TSToggle incremental-selection
-    TSToggle indent
     " Start COQ
     COQnow --shut-up
     " Start Blamer
     BlamerToggle
+    " Start tree-sitter
+    lua vim.treesitter.start()
 endfunction
-
-" Colorscheme
-
-"very dark and slightly cold
-"colorscheme sorbet
-
-"matte but not too much contrast, nice colors
-"colorscheme edge
-
-"very high contrast, good for C-programming
-"colorscheme wildcharm
-
-"matte like edge, but more contrast and brown, looks like christmas
-"colorscheme gruvbox-baby
-
-"gruvbox-baby but not too much contrast
-colorscheme gruvbox-material
-
-"gruvbox-baby but less red and more like edge, and dark
-"colorscheme everforest
+autocmd VimEnter * ++nested call After_Load()
 
 " remind nvim that .tex files are used also for latex
-autocmd FileType tex setlocal filetype=latex
-
-" Start Treesitter after loading
-autocmd VimEnter * ++nested call After_Load()
-lua << EOF
-    require("mason").setup()
-    require("mason-lspconfig").setup()
-
-    require'lspconfig'.clangd.setup{}
-    require'lspconfig'.texlab.setup{}
-    require'lspconfig'.biome.setup{}
-    require'lspconfig'.pyre.setup{}
-    require'lspconfig'.pyright.setup{}
-    require("lspconfig").ltex.setup({
-        settings = {
-            ltex = {
-                language = "auto"
-            }
-        },
-    })
-EOF
+autocmd BufRead,BufNewFile *.tex setfiletype latex
 
 " shortcut to display warnings in current line
 :noremap <F2> :lua vim.diagnostic.open_float()
