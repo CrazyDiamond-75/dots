@@ -56,49 +56,46 @@ let g:netrw_browse_split = 3
 let g:tex_flavor = "latex"
 
 " Plug section start
-call plug#begin()
+"call plug#begin()
 
 " COQ, for autocomplete
-Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
+"Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
 " 9000+ Snippets
-Plug 'ms-jpq/coq.artifacts', {'branch': 'artifacts'}
+"Plug 'ms-jpq/coq.artifacts', {'branch': 'artifacts'}
 " lua & third party sources -- See https://github.com/ms-jpq/coq.thirdparty
 " Need to **configure separately**
-Plug 'ms-jpq/coq.thirdparty', {'branch': '3p'}
+"Plug 'ms-jpq/coq.thirdparty', {'branch': '3p'}
 
 " Colorscheme
-Plug 'sainnhe/gruvbox-material'
+"Plug 'sainnhe/gruvbox-material'
 
 " a bar that displays the current mode
-Plug 'itchyny/lightline.vim'
+"Plug 'itchyny/lightline.vim'
 " commit message integration in nvim
-Plug 'APZelos/blamer.nvim'
+"Plug 'APZelos/blamer.nvim'
 
 " live tex rendering
-Plug 'let-def/texpresso.vim'
+"Plug 'let-def/texpresso.vim'
 
 " Better syntax highlighting
-Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+"Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
 " Plug section end
-call plug#end()
+"call plug#end()
 
 " Colorscheme
 colorscheme gruvbox-material
 
+" Start COQ and Blamer on VimEnter
+autocmd VimEnter * ++nested COQnow --shut-up
+autocmd VimEnter * ++nested BlamerToggle
 
-function After_Load()
-    " Start COQ
-    COQnow --shut-up
-    " Start Blamer
-    BlamerToggle
-    " Start tree-sitter
-    lua vim.treesitter.start()
-endfunction
-autocmd VimEnter * ++nested call After_Load()
+" Automatically start Tree-sitter for any buffer that has a parser
+" Use pcall to avoid errors if a parser is missing
+autocmd FileType * lua pcall(vim.treesitter.start)
 
-" remind nvim that .tex files are used also for latex
+" Ensure .tex files are recognized as latex
 autocmd BufRead,BufNewFile *.tex setfiletype latex
 
-" shortcut to display warnings in current line
+" Shortcut to display warnings in current line
 :noremap <F2> :lua vim.diagnostic.open_float()
