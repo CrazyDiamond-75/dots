@@ -41,7 +41,7 @@ vim.opt.hidden = true
 vim.opt.clipboard:append("unnamed")
 vim.opt.clipboard:append("unnamedplus")
 
--- Colors and appearance
+-- Colours and appearance
 vim.opt.termguicolors = true
 vim.opt.background = "dark"
 
